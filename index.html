@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo respuesta IA</title>
+<meta name="description" content="Escribe como si fueras un cliente y mira cómo la IA responde y califica el mensaje en segundos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;800&family=Red+Hat+Text:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE demo de producto en vivo, para mostrar en reuniones y en reels
+   IDEA una bandeja de entrada: el mensaje del cliente entra y la respuesta de la IA sale con cronómetro
+   PICTURE la tarjeta de correo respondido, con la calificación y el tiempo de respuesta grandes
+   COLOUR navy #0b1433 como la calculadora, turquesa #4fc1c6, amarillo #f7e463, rojo #e8452c
+   TYPE Red Hat Display 800 + Red Hat Text
+   LAYOUT laptop: formulario a la izquierda, correo respondido a la derecha; teléfono: título, formulario y el resultado debajo */
+:root{color-scheme:dark;--bg:#0b1433;--panel:#121d45;--line:#26346b;--ink:#eef1ff;--soft:#a9b3dc;--blue:#3b4fd8;--teal:#4fc1c6;--yel:#f7e463;--red:#e8452c;--paper:#f6f7fb;--pink:#0b1433}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
+.band{padding-block:clamp(24px,4vw,56px);padding-left:max(5vw,16px);padding-right:max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font:800 clamp(32px,4.6vw,50px)/1.05 "Red Hat Display",sans-serif;letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance;max-width:22ch}
+h2{font:800 20px/1.2 "Red Hat Display",sans-serif;margin:0 0 12px}
+.lead{color:var(--soft);max-width:62ch;margin:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(20px,3vw,40px);margin-top:clamp(24px,3vw,40px);align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:clamp(16px,2.4vw,28px)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.chip{min-height:40px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--soft);cursor:pointer;font:inherit;font-size:15px}
+.chip:hover{color:var(--ink);border-color:var(--soft)}
+.chip[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#0b1433;font-weight:700}
+.f{margin-bottom:14px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+label{display:block;font-size:14px;color:var(--soft);margin-bottom:4px}
+input,textarea,button{font:inherit;font-size:16px;color:var(--ink)}
+input,textarea{width:100%;min-height:44px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+textarea{resize:vertical;min-height:110px}
+input:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.sep{border:0;border-top:1px solid var(--line);margin:20px 0 16px}
+.trampa{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:10px 22px;border-radius:10px;border:0;cursor:pointer;font-weight:700;text-decoration:none;width:100%;font-size:17px}
+.btn.main{background:var(--yel);color:#0b1433}
+.btn.main:hover{background:#fff27f}
+.btn.main:disabled{opacity:.6;cursor:wait}
+.btn.wa{background:var(--teal);color:#0b1433;margin-top:16px}
+.hint{font-size:14px;color:var(--soft);margin:8px 0 0}
+.res{position:sticky;top:16px}
+.top{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:end;margin-bottom:16px}
+.k b{display:block;font:800 clamp(34px,4.6vw,52px)/1 "Red Hat Display",sans-serif;white-space:nowrap}
+.k span{font-size:14px;color:var(--soft)}
+.badge{display:inline-block;padding:4px 12px;border-radius:999px;font-weight:700;font-size:15px;color:#0b1433}
+.mail{background:var(--paper);color:#1b2240;border-radius:12px;overflow:hidden;box-shadow:0 18px 40px -20px #000}
+.mail-h{padding:14px 18px;border-bottom:1px solid #dfe3ef;font-size:14px;color:#525b7d}
+.mail-h strong{display:block;color:#1b2240;font-size:17px;margin-top:2px}
+.mail-b{padding:18px;white-space:pre-wrap;font-size:16px;line-height:1.6;min-height:220px;overflow-wrap:anywhere}
+.in{background:#0e1838;border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:15px;color:var(--soft);white-space:pre-wrap;overflow-wrap:anywhere}
+.in em{font-style:normal;color:var(--ink);font-weight:700}
+.razon{margin:14px 0 0;color:var(--soft);font-size:15px}
+.estado{font-size:14px;color:var(--soft);margin:10px 0 0}
+.muestra{font-size:13px;color:var(--soft);margin:0 0 10px}
+.dots{display:inline-flex;gap:6px;padding:8px 0}
+.dots i{width:9px;height:9px;border-radius:50%;background:#9aa3c4;animation:b 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-6px);opacity:.4}}
+.err{background:#3a1420;border:1px solid var(--red);color:#ffd5cf;border-radius:10px;padding:12px 14px;margin-top:14px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(15em,1fr));gap:20px;color:var(--soft);font-size:15px}
+.how b{color:var(--ink);display:block}
+@media(max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}.res{position:static}}
+@media(max-width:600px){.two{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.dots i{animation:none}}
+</style>
+</head>
+<body>
+<main class="band"><div class="wrap">
+  <h1>Escríbele a un negocio y mira cómo le responde la IA</h1>
+  <p class="lead">Escoge un tipo de negocio o pon el tuyo. Luego escribe como si fueras un cliente. La IA lee el mensaje, lo califica y responde en segundos, también a tu correo.</p>
+
+  <div class="grid">
+    <form class="panel" id="form" novalidate>
+      <h2>1. El negocio</h2>
+      <div class="chips" id="chips" role="group" aria-label="Negocios de ejemplo"></div>
+      <div class="f"><label for="negocio">Nombre del negocio</label><input id="negocio" maxlength="80" required></div>
+      <div class="f"><label for="que_vende">Qué vende y cómo trabaja</label><textarea id="que_vende" maxlength="400" required style="min-height:84px"></textarea></div>
+
+      <hr class="sep">
+      <h2>2. Tú eres el cliente</h2>
+      <div class="two">
+        <div class="f"><label for="nombre">Tu nombre</label><input id="nombre" maxlength="80" autocomplete="given-name"></div>
+        <div class="f"><label for="correo">Tu correo, para recibir la respuesta</label><input id="correo" type="email" maxlength="120" autocomplete="email" inputmode="email"></div>
+      </div>
+      <div class="f"><label for="mensaje">Tu mensaje al negocio</label><textarea id="mensaje" maxlength="1200" required></textarea></div>
+      <div class="trampa" aria-hidden="true"><label for="sitio_web">No llenes este campo</label><input id="sitio_web" tabindex="-1" autocomplete="off"></div>
+      <button class="btn main" id="enviar" type="submit">Enviar mensaje</button>
+      <p class="hint">El correo es opcional. Si lo pones, te llega la respuesta como le llegaría a un cliente real.</p>
+    </form>
+
+    <section class="panel res" aria-live="polite" aria-labelledby="t-res">
+      <h2 id="t-res" class="sr">Respuesta de la IA</h2>
+      <div class="top">
+        <div class="k"><b id="r-tiempo">7,8 s</b><span>tiempo de respuesta</span></div>
+        <div class="k"><span>Calificación del lead</span><br><span class="badge" id="r-calif" style="background:var(--red);color:#fff">Caliente</span></div>
+      </div>
+      <p class="muestra" id="r-muestra">Así se ve una respuesta. Escribe tu propio mensaje para probarla en vivo.</p>
+      <div class="in" id="r-in"><em>Laura escribió:</em> Hola, necesito 50 camisetas con el logo de mi empresa para un evento el 15 de diciembre. ¿Alcanzan?</div>
+      <div class="mail">
+        <div class="mail-h">De: El equipo de <span id="r-de">Estampados La 70</span><strong id="r-asunto">Tus 50 camisetas para el 15 de diciembre</strong></div>
+        <div class="mail-b" id="r-correo">Hola, Laura:
+
+¡Claro que sí! Con 50 camisetas para el 15 de diciembre estamos a buen tiempo.
+
+Para enviarte la cotización exacta necesito dos datos:
+1. ¿El logo va en un solo color o a full color?
+2. ¿Qué tallas y colores de camiseta necesitas?
+
+Si te queda más fácil, mándanos el logo por WhatsApp y te respondemos hoy mismo con precio y fecha de entrega.
+
+El equipo de Estampados La 70</div>
+      </div>
+      <p class="razon" id="r-razon">Necesidad concreta: cantidad, fecha y uso definidos.</p>
+      <p class="estado" id="r-estado"></p>
+      <div id="r-error"></div>
+      <a class="btn wa" id="wa" href="#" target="_blank" rel="noopener" hidden>Quiero esto en mi negocio</a>
+    </section>
+  </div>
+</div></main>
+
+<section class="band" style="border-top:1px solid var(--line)"><div class="wrap">
+  <h2>Qué pasa por dentro</h2>
+  <div class="how">
+    <p><b>1. Lee el mensaje</b>La IA entiende qué pide el cliente, aunque escriba con afán o con errores.</p>
+    <p><b>2. Lo califica</b>Caliente, tibio o frío, para que el equipo atienda primero a quien está listo para comprar.</p>
+    <p><b>3. Responde</b>Una respuesta personalizada, con preguntas puntuales si falta información, sin inventar precios.</p>
+    <p><b>4. Lo registra</b>Cada mensaje queda guardado en una hoja de cálculo con su calificación.</p>
+  </div>
+</div></section>
+
+<script>
+{
+  // ====== CONFIGURACIÓN ======
+  const CONFIG = {
+    // URL del motor en Google Apps Script (termina en /exec). Ver README.
+    API_URL: '',
+    // Tu WhatsApp con indicativo, sin + ni espacios (ej: 573001234567)
+    WHATSAPP: '',
+  };
+
+  const NEGOCIOS = [
+    { id: 'estampados', t: 'Estampados', n: 'Estampados La 70', v: 'Camisetas y dotaciones estampadas para empresas en Medellín. Pedido mínimo 20 unidades. Entregas en 8 a 12 días hábiles.', m: 'Hola, necesito 50 camisetas con el logo de mi empresa para un evento el 15 de diciembre. ¿Alcanzan?' },
+    { id: 'inmobiliaria', t: 'Inmobiliaria', n: 'Habitat Sabana', v: 'Inmobiliaria en Chía y Cajicá. Arriendo y venta de casas y apartamentos. Visitas con cita de lunes a sábado.', m: 'Buenas, estoy buscando apartamento en arriendo en Chía, 3 habitaciones, para enero. Tengo mascota.' },
+    { id: 'clinica', t: 'Clínica estética', n: 'Dermavida', v: 'Clínica de estética facial en Bogotá: limpiezas, botox, rellenos y valoraciones con dermatólogo. Valoración inicial obligatoria.', m: 'Hola quiero saber cuanto vale el botox y si me pueden atender este sábado' },
+    { id: 'academia', t: 'Academia de inglés', n: 'Speak Up Academy', v: 'Cursos de inglés virtuales para adultos, grupos de máximo 6 personas, clases en la noche. Prueba de nivel gratis.', m: 'Me interesa aprender inglés para una entrevista de trabajo en febrero. Trabajo de día.' },
+    { id: 'restaurante', t: 'Restaurante', n: 'Fogón de la Abuela', v: 'Restaurante de comida típica en Cali. Almuerzos, eventos privados hasta 60 personas y catering.', m: 'Hola! Quiero hacer la novena de la empresa, somos como 40, ¿manejan eventos?' },
+  ];
+  const COLOR = { caliente: ['var(--red)', '#fff', 'Caliente'], tibio: ['var(--yel)', '#0b1433', 'Tibio'], frio: ['var(--teal)', '#0b1433', 'Frío'] };
+  const $ = (id) => document.getElementById(id);
+
+  $('chips').innerHTML = NEGOCIOS.map((x) => '<button type="button" class="chip" aria-pressed="false" data-id="' + x.id + '">' + x.t + '</button>').join('');
+
+  function elegir(id) {
+    const x = NEGOCIOS.find((n) => n.id === id);
+    if (!x) return;
+    $('negocio').value = x.n; $('que_vende').value = x.v; $('mensaje').value = x.m;
+    document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.id === id)));
+  }
+  $('chips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (c) elegir(c.dataset.id); });
+  ['negocio', 'que_vende'].forEach((id) => $(id).addEventListener('input', () => document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false'))));
+  elegir('estampados');
+
+  if (CONFIG.WHATSAPP) {
+    $('wa').href = 'https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent('Hola, probé tu demo de respuestas con IA y quiero algo así para mi negocio.');
+    $('wa').hidden = false;
+  }
+
+  function mostrarError(t) {
+    const d = document.createElement('div');
+    d.className = 'err'; d.textContent = t;
+    $('r-error').replaceChildren(d);
+  }
+
+  let reloj;
+  $('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('r-error').replaceChildren();
+    const datos = {
+      negocio: $('negocio').value.trim(), que_vende: $('que_vende').value.trim(),
+      nombre: $('nombre').value.trim(), correo: $('correo').value.trim(),
+      mensaje: $('mensaje').value.trim(), sitio_web: $('sitio_web').value,
+    };
+    if (!datos.negocio || !datos.que_vende || !datos.mensaje) return mostrarError('Completa el negocio, lo que vende y tu mensaje.');
+    if (datos.correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo)) return mostrarError('Revisa tu correo, parece que tiene un error.');
+    if (!CONFIG.API_URL) return mostrarError('La demo todavía no está conectada al motor de IA (falta API_URL).');
+
+    const btn = $('enviar');
+    btn.disabled = true; btn.textContent = 'La IA está respondiendo…';
+    $('r-muestra').hidden = true;
+    $('r-in').replaceChildren();
+    const em = document.createElement('em'); em.textContent = (datos.nombre || 'El cliente') + ' escribió: ';
+    $('r-in').append(em, document.createTextNode(datos.mensaje));
+    $('r-de').textContent = datos.negocio;
+    $('r-asunto').textContent = 'Escribiendo respuesta…';
+    $('r-correo').innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
+    $('r-calif').textContent = '…'; $('r-calif').style.background = 'var(--line)'; $('r-calif').style.color = 'var(--ink)';
+    $('r-razon').textContent = ''; $('r-estado').textContent = '';
+    const t0 = performance.now();
+    reloj = setInterval(() => { $('r-tiempo').textContent = ((performance.now() - t0) / 1000).toFixed(1).replace('.', ',') + ' s'; }, 100);
+
+    try {
+      // Sin encabezados: así el navegador no bloquea la llamada a Google Apps Script
+      const resp = await fetch(CONFIG.API_URL, { method: 'POST', body: JSON.stringify(datos) });
+      const r = await resp.json();
+      if (!r.ok) throw new Error(r.error || 'Algo falló.');
+      clearInterval(reloj);
+      $('r-tiempo').textContent = ((performance.now() - t0) / 1000).toFixed(1).replace('.', ',') + ' s';
+      const c = COLOR[r.calificacion] || COLOR.tibio;
+      $('r-calif').textContent = c[2]; $('r-calif').style.background = c[0]; $('r-calif').style.color = c[1];
+      $('r-asunto').textContent = r.asunto;
+      $('r-correo').textContent = r.correo;
+      $('r-razon').textContent = r.razon;
+      $('r-estado').textContent = r.correo_enviado ? 'También te llegó a ' + datos.correo + '. Revisa la bandeja de entrada o el spam.' : '';
+    } catch (err) {
+      clearInterval(reloj);
+      $('r-tiempo').textContent = '–';
+      $('r-asunto').textContent = 'Sin respuesta';
+      $('r-correo').textContent = '';
+      $('r-calif').textContent = '–';
+      mostrarError(err.message && err.message !== 'Failed to fetch' ? err.message : 'No hubo conexión con la IA. Intenta de nuevo.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enviar mensaje';
+    }
+  });
+}
+</script>
+</body>
+</html>
